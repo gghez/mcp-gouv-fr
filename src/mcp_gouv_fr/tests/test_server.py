@@ -14,6 +14,7 @@ async def test_build_server_has_tools() -> None:
     names = {t.name for t in tools}
     assert "datagouv_search_datasets" in names
     assert "datagouv_get_dataset" in names
+    assert "radiofrance_graphql" in names
 
 
 @pytest.mark.asyncio
@@ -22,8 +23,10 @@ async def test_tools_expose_pydantic_output_schema() -> None:
     tools = {t.name: t for t in await mcp.list_tools()}
     search = tools["datagouv_search_datasets"]
     get_ds = tools["datagouv_get_dataset"]
+    rf_gql = tools["radiofrance_graphql"]
     assert search.output_schema is not None
     assert get_ds.output_schema is not None
+    assert rf_gql.output_schema is not None
     props = search.output_schema.get("properties", {})
     assert "datasets" in props
 

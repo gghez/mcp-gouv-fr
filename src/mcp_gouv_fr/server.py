@@ -27,8 +27,10 @@ def build_server(*, api_mounts: Sequence[ApiMount] | None = None) -> FastMCP:
     mcp = FastMCP(
         "MCP Gouv FR",
         instructions=(
-            "French public-sector open data and APIs. Tools are grouped by namespace: "
-            "each prefix (e.g. ``datagouv_``) identifies one portal or API family. "
+            "French public-sector open data and related public APIs. "
+            "Tools are grouped by namespace: "
+            "each prefix (e.g. ``datagouv_``, ``radiofrance_``) identifies one portal "
+            "or API family. "
             "Use structured tool outputs and pagination fields when provided. "
             "Every tool, output model, and model field in this server is documented (descriptions "
             "and docstrings) so agents can discover semantics, units, and relationships without "

@@ -6,7 +6,7 @@ Tool responses are typed with **Pydantic** models so clients get stable JSON sch
 
 ## API packages (namespaced tools)
 
-Each government API (or portal) lives in its own Python package under `src/mcp_gouv_fr/apis/<name>/`. The root server **mounts** each package with a FastMCP **namespace**, so tool names become `namespace_tool` (e.g. `datagouv_search_datasets`, `datagouv_get_dataset`).
+Each government or public API lives in its own Python package under `src/mcp_gouv_fr/apis/<name>/`. The root server **mounts** each package with a FastMCP **namespace**, so tool names become `namespace_tool` (e.g. `datagouv_search_datasets`, `radiofrance_graphql`).
 
 To add an API: create `apis/<myapi>/` with `build_subserver()` returning a `FastMCP` instance, then register `("myapi", build_subserver)` in `mcp_gouv_fr.apis.default_api_mounts`.
 
@@ -94,15 +94,19 @@ For a **remote HTTP** MCP server, use the URL from `--transport streamable-http`
 
 ## Environment variables (API)
 
-| Variable | Description |
-|----------|-------------|
-| `MCP_GOUV_DATAGOUV_API_BASE` | data.gouv API base (default: `https://www.data.gouv.fr/api/1`) |
-| `MCP_GOUV_HTTP_TIMEOUT` | HTTP timeout in seconds (default: `30`) |
-| `MCP_GOUV_USER_AGENT` | Outbound `User-Agent` header |
+
+| Variable                             | Description                                                                 |
+| ------------------------------------ | --------------------------------------------------------------------------- |
+| `MCP_GOUV_DATAGOUV_API_BASE`         | data.gouv API base (default: `https://www.data.gouv.fr/api/1`)              |
+| `MCP_GOUV_RADIOFRANCE_GRAPHQL_URL`   | Radio France GraphQL endpoint (default: `https://openapi.radiofrance.fr/v1/graphql`) |
+| `MCP_GOUV_RADIOFRANCE_API_TOKEN`     | Radio France Open API key (`x-token`); required for `radiofrance_graphql` ([portal](https://developers.radiofrance.fr/)) |
+| `MCP_GOUV_HTTP_TIMEOUT`              | HTTP timeout in seconds (default: `30`)                                     |
+| `MCP_GOUV_USER_AGENT`                | Outbound `User-Agent` header                                                |
+
 
 ## Development
 
-Tests live in nested **`tests`** packages **beside the code they exercise** under `src/mcp_gouv_fr/` (e.g. `mcp_gouv_fr/apis/datagouv/tests/` next to `http.py` / `models.py`, and `mcp_gouv_fr/tests/` for `server.py`).
+Tests live in nested `**tests`** packages **beside the code they exercise** under `src/mcp_gouv_fr/` (e.g. `mcp_gouv_fr/apis/datagouv/tests/` next to `http.py` / `models.py`, and `mcp_gouv_fr/tests/` for `server.py`).
 
 ```bash
 uv run pytest
