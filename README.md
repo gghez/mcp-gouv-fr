@@ -1,13 +1,13 @@
 # mcp-gouv-fr
 
-[MCP](https://modelcontextprotocol.io/) (Model Context Protocol) server built with [FastMCP](https://gofastmcp.com/) so assistants (Claude Desktop, Cursor, etc.) can query **French public open data** through documented, structured tools. The first integrated portal is **[data.gouv.fr](https://www.data.gouv.fr/)** (API v1).
+[MCP](https://modelcontextprotocol.io/) (Model Context Protocol) server built with [FastMCP](https://gofastmcp.com/) so assistants (Claude Desktop, Cursor, etc.) can query **French public open data** through documented, structured tools. Integrated APIs include **[data.gouv.fr](https://www.data.gouv.fr/)** (API v1) and the national geographic referential **[geo.api.gouv.fr](https://geo.api.gouv.fr/)**.
 
 **Source repository:** [github.com/gghez/mcp-gouv-fr](https://github.com/gghez/mcp-gouv-fr)
 
 ## What it provides (technical / functional)
 
 - **Transport:** stdio (default, for local MCP clients) or streamable HTTP (optional, for remote access where your client supports it).
-- **Architecture:** one FastMCP sub-server per API family, **mounted with a namespace**. Tool names are prefixed (e.g. `datagouv_search_datasets`, `datagouv_get_dataset`).
+- **Architecture:** one FastMCP sub-server per API family, **mounted with a namespace**. Tool names are prefixed (e.g. `datagouv_search_datasets`, `geo_search_communes`).
 - **Outputs:** [Pydantic](https://docs.pydantic.dev/) models with field descriptions, exposed to clients as JSON Schema so agents can interpret results without guessing.
 - **HTTP:** stateless calls to public APIs with configurable timeout and `User-Agent`.
 
@@ -17,6 +17,10 @@
 | -------- | ---- |
 | `datagouv_search_datasets` | Full-text search over datasets (title, description, organization), with pagination (`page`, `page_size`). |
 | `datagouv_get_dataset` | Full metadata and **resource links** (files, APIs, formats, MIME) for one dataset, by id or slug. |
+| `geo_search_communes` | Search communes by name, postal code, and/or department (at least one filter required). |
+| `geo_get_commune` | Commune detail by INSEE municipality code. |
+| `geo_search_departements` / `geo_get_departement` | List or search departments; detail by department code. |
+| `geo_search_regions` / `geo_get_region` | List or search regions; detail by region code. |
 
 Additional portals may be added later as new namespaces under `mcp_gouv_fr.apis`.
 
@@ -135,6 +139,7 @@ Environment variables (optional): `MCP_GOUV_TRANSPORT`, `MCP_GOUV_HOST`, `MCP_GO
 | Variable | Description |
 | -------- | ----------- |
 | `MCP_GOUV_DATAGOUV_API_BASE` | data.gouv API base URL (default: `https://www.data.gouv.fr/api/1`) |
+| `MCP_GOUV_GEO_API_BASE` | Geo API base URL (default: `https://geo.api.gouv.fr`) |
 | `MCP_GOUV_HTTP_TIMEOUT` | Outbound HTTP timeout in seconds (default: `30`) |
 | `MCP_GOUV_USER_AGENT` | `User-Agent` header for HTTP requests |
 
