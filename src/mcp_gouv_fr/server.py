@@ -27,9 +27,8 @@ def build_server(*, api_mounts: Sequence[ApiMount] | None = None) -> FastMCP:
     mcp = FastMCP(
         "MCP Gouv FR",
         instructions=(
-            "French public-sector open data and related public APIs. "
-            "Tools are grouped by namespace: "
-            "each prefix (e.g. ``datagouv_``, ``radiofrance_``) identifies one portal "
+            "French public-sector open data and APIs. Tools are grouped by namespace: "
+            "each prefix (e.g. ``datagouv_``, ``geo_``, ``radiofrance_``) identifies one portal "
             "or API family. "
             "Use structured tool outputs and pagination fields when provided. "
             "Every tool, output model, and model field in this server is documented (descriptions "
@@ -37,8 +36,8 @@ def build_server(*, api_mounts: Sequence[ApiMount] | None = None) -> FastMCP:
             "guessing—rely on those descriptions when interpreting results. "
             "Automated tests live in nested ``tests`` packages next to the modules they cover: "
             "e.g. ``mcp_gouv_fr/tests/`` for package-level code such as ``server.py``, and "
-            "``mcp_gouv_fr/apis/datagouv/tests/`` alongside ``http.py``, ``models.py``, and "
-            "other siblings in that API package."
+            "``mcp_gouv_fr/apis/datagouv/tests/`` or ``mcp_gouv_fr/apis/geo/tests/`` alongside "
+            "``http.py``, ``models.py``, and other siblings in that API package."
         ),
     )
 

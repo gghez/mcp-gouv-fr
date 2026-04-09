@@ -24,8 +24,10 @@ def default_api_mounts() -> Sequence[ApiMount]:
     """Ordered list of (namespace, subserver_factory) for the composite MCP server."""
     from mcp_gouv_fr.apis.datagouv.server import build_subserver as build_datagouv
     from mcp_gouv_fr.apis.radiofrance.server import build_subserver as build_radiofrance
+    from mcp_gouv_fr.apis.geo.server import build_subserver as build_geo
 
     return (
         ("datagouv", build_datagouv),
         ("radiofrance", build_radiofrance),
+        ("geo", build_geo),
     )

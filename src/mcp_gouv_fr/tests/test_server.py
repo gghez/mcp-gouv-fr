@@ -15,6 +15,12 @@ async def test_build_server_has_tools() -> None:
     assert "datagouv_search_datasets" in names
     assert "datagouv_get_dataset" in names
     assert "radiofrance_graphql" in names
+    assert "geo_search_communes" in names
+    assert "geo_get_commune" in names
+    assert "geo_search_departements" in names
+    assert "geo_get_departement" in names
+    assert "geo_search_regions" in names
+    assert "geo_get_region" in names
 
 
 @pytest.mark.asyncio
