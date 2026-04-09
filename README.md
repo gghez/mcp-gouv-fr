@@ -103,6 +103,11 @@ For a **remote HTTP** MCP server, use the URL from `--transport streamable-http`
 | `MCP_GOUV_HTTP_TIMEOUT`           | HTTP timeout in seconds (default: `30`)                                     |
 | `MCP_GOUV_USER_AGENT`             | Outbound `User-Agent` header                                                |
 
+### INSEE Sirene (API key required)
+
+Unlike the data.gouv integration, **Sirene lookups will not work until you set an API key.** Subscribe to the Sirene API on the [INSEE developer portal](https://portail-api.insee.fr/), generate a consumer key, and expose it to the MCP process as **`MCP_GOUV_INSEE_API_KEY`**. The server sends it as the `X-INSEE-Api-Key-Integration` header to `api.insee.fr`. If this variable is missing or empty, the `insee_*` tools return an error that asks you to configure it.
+
+When using Claude Desktop or Cursor, add `MCP_GOUV_INSEE_API_KEY` to the server’s environment (e.g. `env` in the MCP JSON config) so the subprocess inherits it.
 
 ## Development
 
