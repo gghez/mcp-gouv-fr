@@ -28,15 +28,16 @@ def build_server(*, api_mounts: Sequence[ApiMount] | None = None) -> FastMCP:
         "MCP Gouv FR",
         instructions=(
             "French public-sector open data and APIs. Tools are grouped by namespace: "
-            "each prefix (e.g. ``datagouv_``, ``geo_``, ``radiofrance_``) identifies one portal "
-            "or API family. "
+            "each prefix (e.g. ``datagouv_``, ``geo_``, ``insee_``, ``radiofrance_``) identifies "
+            "one portal or API family. "
             "Use structured tool outputs and pagination fields when provided. "
             "Every tool, output model, and model field in this server is documented (descriptions "
             "and docstrings) so agents can discover semantics, units, and relationships without "
             "guessing—rely on those descriptions when interpreting results. "
             "Automated tests live in nested ``tests`` packages next to the modules they cover: "
             "e.g. ``mcp_gouv_fr/tests/`` for package-level code such as ``server.py``, and "
-            "``mcp_gouv_fr/apis/datagouv/tests/`` or ``mcp_gouv_fr/apis/geo/tests/`` alongside "
+            "``mcp_gouv_fr/apis/datagouv/tests/``, ``mcp_gouv_fr/apis/geo/tests/``, "
+            "``mcp_gouv_fr/apis/insee/tests/``, ``mcp_gouv_fr/apis/radiofrance/tests/`` alongside "
             "``http.py``, ``models.py``, and other siblings in that API package."
         ),
     )
