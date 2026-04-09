@@ -1,6 +1,6 @@
 # mcp-gouv-fr
 
-A Python [MCP](https://modelcontextprotocol.io/) (Model Context Protocol) server built with **[FastMCP](https://gofastmcp.com/)** so assistants (Claude, Cursor, etc.) can use **French public open data** APIs, starting with **[data.gouv.fr](https://www.data.gouv.fr/)**.
+A Python [MCP](https://modelcontextprotocol.io/) (Model Context Protocol) server built with **[FastMCP](https://gofastmcp.com/)** so assistants (Claude, Cursor, etc.) can use **French public open data** APIs, including **[data.gouv.fr](https://www.data.gouv.fr/)** and **[INSEE API Sirene](https://portail-api.insee.fr/)** (business registry lookups with a portal key).
 
 Tool responses are typed with **Pydantic** models so clients get stable JSON schemas for structured results.
 
@@ -94,15 +94,19 @@ For a **remote HTTP** MCP server, use the URL from `--transport streamable-http`
 
 ## Environment variables (API)
 
-| Variable | Description |
-|----------|-------------|
-| `MCP_GOUV_DATAGOUV_API_BASE` | data.gouv API base (default: `https://www.data.gouv.fr/api/1`) |
-| `MCP_GOUV_HTTP_TIMEOUT` | HTTP timeout in seconds (default: `30`) |
-| `MCP_GOUV_USER_AGENT` | Outbound `User-Agent` header |
+
+| Variable                          | Description                                                                 |
+| --------------------------------- | --------------------------------------------------------------------------- |
+| `MCP_GOUV_DATAGOUV_API_BASE`      | data.gouv API base (default: `https://www.data.gouv.fr/api/1`)              |
+| `MCP_GOUV_INSEE_API_KEY`          | INSEE portal API key (required for Sirene tools; from portail-api.insee.fr) |
+| `MCP_GOUV_INSEE_SIRENE_API_BASE`  | Sirene 3.11 base (default: `https://api.insee.fr/api-sirene/3.11`)          |
+| `MCP_GOUV_HTTP_TIMEOUT`           | HTTP timeout in seconds (default: `30`)                                     |
+| `MCP_GOUV_USER_AGENT`             | Outbound `User-Agent` header                                                |
+
 
 ## Development
 
-Tests live in nested **`tests`** packages **beside the code they exercise** under `src/mcp_gouv_fr/` (e.g. `mcp_gouv_fr/apis/datagouv/tests/` next to `http.py` / `models.py`, and `mcp_gouv_fr/tests/` for `server.py`).
+Tests live in nested `**tests`** packages **beside the code they exercise** under `src/mcp_gouv_fr/` (e.g. `mcp_gouv_fr/apis/datagouv/tests/` next to `http.py` / `models.py`, and `mcp_gouv_fr/tests/` for `server.py`).
 
 ```bash
 uv run pytest
