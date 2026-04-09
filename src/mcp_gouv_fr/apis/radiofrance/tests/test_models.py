@@ -29,3 +29,16 @@ def test_from_api_payload_data_only() -> None:
     out = GraphQLExecuteOutput.from_api_payload({"data": {"ok": True}})
     assert out.data == {"ok": True}
     assert out.errors == []
+
+
+def test_from_api_payload_skips_invalid_error_items() -> None:
+    raw = {
+        "errors": [
+            {"locations": [{"line": 1, "column": 2}]},
+            {"message": "Valid error", "extra_field": "ignored"},
+            "not-a-dict",
+        ]
+    }
+    out = GraphQLExecuteOutput.from_api_payload(raw)
+    assert len(out.errors) == 1
+    assert out.errors[0].message == "Valid error"

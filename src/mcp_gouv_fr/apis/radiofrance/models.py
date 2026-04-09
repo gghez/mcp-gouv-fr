@@ -63,29 +63,7 @@ class GraphQLExecuteOutput(BaseModel):
                 if not isinstance(item, dict):
                     continue
                 try:
-                    locs = item.get("locations")
-                    locations: list[GraphQLLocation] | None = None
-                    if isinstance(locs, list):
-                        parsed_locs: list[GraphQLLocation] = []
-                        for loc in locs:
-                            if isinstance(loc, dict):
-                                try:
-                                    parsed_locs.append(GraphQLLocation.model_validate(loc))
-                                except ValidationError:
-                                    continue
-                        locations = parsed_locs or None
-                    path_raw = item.get("path")
-                    path: list[str | int] | None = None
-                    if isinstance(path_raw, list):
-                        path = [p for p in path_raw if isinstance(p, (str, int))]
-                        path = path or None
-                    errors.append(
-                        GraphQLErrorItem(
-                            message=str(item.get("message", "")),
-                            locations=locations,
-                            path=path,
-                        )
-                    )
+                    errors.append(GraphQLErrorItem.model_validate(item))
                 except ValidationError:
                     continue
         return cls(data=data_dict, errors=errors)
