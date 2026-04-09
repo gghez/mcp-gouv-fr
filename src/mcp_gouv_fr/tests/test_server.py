@@ -14,6 +14,7 @@ async def test_build_server_has_tools() -> None:
     names = {t.name for t in tools}
     assert "datagouv_search_datasets" in names
     assert "datagouv_get_dataset" in names
+    assert "radiofrance_graphql" in names
     assert "geo_search_communes" in names
     assert "geo_get_commune" in names
     assert "geo_search_departements" in names
@@ -30,10 +31,12 @@ async def test_tools_expose_pydantic_output_schema() -> None:
     tools = {t.name: t for t in await mcp.list_tools()}
     search = tools["datagouv_search_datasets"]
     get_ds = tools["datagouv_get_dataset"]
+    rf_gql = tools["radiofrance_graphql"]
     geo_commune = tools["geo_get_commune"]
     insee_ul = tools["insee_get_unite_legale"]
     assert search.output_schema is not None
     assert get_ds.output_schema is not None
+    assert rf_gql.output_schema is not None
     assert geo_commune.output_schema is not None
     assert insee_ul.output_schema is not None
     props = search.output_schema.get("properties", {})
