@@ -135,7 +135,7 @@ uvx --from git+https://github.com/gghez/mcp-gouv-fr.git mcp-gouv-fr --transport 
 uvx --from git+https://github.com/gghez/mcp-gouv-fr.git mcp-gouv-fr --transport streamable-http --host 127.0.0.1 --port 8765 --path /mcp
 ```
 
-Environment variables (optional): `MCP_GOUV_TRANSPORT`, `MCP_GOUV_HOST`, `MCP_GOUV_PORT`, `MCP_GOUV_HTTP_PATH`, `MCP_GOUV_APIS` (comma-separated API ids; default: all).
+Environment variables (optional): `MCP_GOUV_TRANSPORT`, `MCP_GOUV_HOST`, `MCP_GOUV_PORT`, `MCP_GOUV_HTTP_PATH`, `MCP_GOUV_APIS` (comma-separated API ids; default: all), `MCP_GOUV_LOG_LEVEL` (logging level for stderr; default: `INFO`).
 
 ## Environment variables (API behavior)
 
@@ -150,6 +150,7 @@ Environment variables (optional): `MCP_GOUV_TRANSPORT`, `MCP_GOUV_HOST`, `MCP_GO
 | `MCP_GOUV_RADIOFRANCE_API_TOKEN` | Radio France Open API key (`x-token`); required for `radiofrance_graphql` ([portal](https://developers.radiofrance.fr/)) |
 | `MCP_GOUV_HTTP_TIMEOUT` | Outbound HTTP timeout in seconds (default: `30`) |
 | `MCP_GOUV_USER_AGENT` | `User-Agent` header for HTTP requests |
+| `MCP_GOUV_LOG_LEVEL` | Stderr log level for the server process (`DEBUG`, `INFO`, `WARNING`, â€¦; default: `INFO`) |
 
 In MCP JSON, set these under `env` next to `command` / `args` if your client supports it.
 
@@ -161,7 +162,7 @@ When using Claude Desktop or Cursor, add `MCP_GOUV_INSEE_API_KEY` to the serverâ
 
 ## Development
 
-Contributors: tests and lint live in the repo; run `uv run pytest` and `uv run ruff check src`. See `AGENTS.md` for layout conventions (nested `tests` next to the code they cover).
+Contributors: tests and lint live in the repo. Run `uv run pytest` and `uv run ruff check src`. Install Git hooks with `uv run pre-commit install` (runs `ruff check --fix` on commit). See `AGENTS.md` for layout conventions (nested `tests` next to the code they cover).
 
 ## License
 

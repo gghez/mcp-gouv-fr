@@ -12,9 +12,11 @@ from mcp_gouv_fr.apis.insee import http as insee_http
 async def test_get_unite_legale_parses_json() -> None:
     expected = {"uniteLegale": {"siren": "123456789", "denominationUniteLegale": "ACME"}}
     transport = httpx.MockTransport(
-        lambda request: httpx.Response(200, json=expected)
-        if request.url.path.rstrip("/").endswith("/siren/123456789")
-        else httpx.Response(404)
+        lambda request: (
+            httpx.Response(200, json=expected)
+            if request.url.path.rstrip("/").endswith("/siren/123456789")
+            else httpx.Response(404)
+        )
     )
     async with httpx.AsyncClient(
         transport=transport,
@@ -28,9 +30,11 @@ async def test_get_unite_legale_parses_json() -> None:
 async def test_get_etablissement_parses_json() -> None:
     expected = {"siret": "12345678901234", "etablissement": {"siret": "12345678901234"}}
     transport = httpx.MockTransport(
-        lambda request: httpx.Response(200, json=expected)
-        if request.url.path.rstrip("/").endswith("/siret/12345678901234")
-        else httpx.Response(404)
+        lambda request: (
+            httpx.Response(200, json=expected)
+            if request.url.path.rstrip("/").endswith("/siret/12345678901234")
+            else httpx.Response(404)
+        )
     )
     async with httpx.AsyncClient(
         transport=transport,

@@ -32,9 +32,11 @@ async def test_search_datasets_parses_json() -> None:
 async def test_get_dataset_by_id() -> None:
     expected = {"id": "abc", "title": "Sample dataset"}
     transport = httpx.MockTransport(
-        lambda request: httpx.Response(200, json=expected)
-        if request.url.path.rstrip("/").endswith("/datasets/abc")
-        else httpx.Response(404)
+        lambda request: (
+            httpx.Response(200, json=expected)
+            if request.url.path.rstrip("/").endswith("/datasets/abc")
+            else httpx.Response(404)
+        )
     )
     async with httpx.AsyncClient(
         transport=transport,

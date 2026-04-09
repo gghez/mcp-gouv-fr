@@ -7,9 +7,12 @@ knowledge of the portal.
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
+
+_log = logging.getLogger(__name__)
 
 
 class OrganizationRef(BaseModel):
@@ -98,14 +101,27 @@ class DatasetSearchOutput(BaseModel):
     @classmethod
     def from_api_payload(cls, raw: dict[str, Any]) -> DatasetSearchOutput:
         raw_list = raw.get("data")
+        if raw_list is not None and not isinstance(raw_list, list):
+            _log.warning(
+                "DatasetSearchOutput.from_api_payload: expected list in 'data', got %s",
+                type(raw_list).__name__,
+            )
         rows: list[Any] = raw_list if isinstance(raw_list, list) else []
         datasets: list[DatasetSummary] = []
         for item in rows:
             if not isinstance(item, dict):
+                _log.warning(
+                    "DatasetSearchOutput.from_api_payload: skipping non-dict row type=%s",
+                    type(item).__name__,
+                )
                 continue
             try:
                 datasets.append(DatasetSummary.model_validate(item))
-            except ValidationError:
+            except ValidationError as e:
+                _log.warning(
+                    "DatasetSearchOutput.from_api_payload: skipping invalid dataset row: %s",
+                    e,
+                )
                 continue
         total = raw.get("total")
         return cls(
@@ -158,12 +174,34 @@ class DatasetDetailOutput(BaseModel):
         payload = {k: v for k, v in raw.items() if k != "resources"}
         res = raw.get("resources")
         resources: list[ResourceRef] = []
+        if res is not None and not isinstance(res, list):
+            _log.warning(
+                "DatasetDetailOutput.from_api_payload: expected list in 'resources', got %s",
+                type(res).__name__,
+            )
         if isinstance(res, list):
             for r in res:
                 if isinstance(r, dict):
                     try:
                         resources.append(ResourceRef.model_validate(r))
-                    except ValidationError:
+                    except ValidationError as e:
+                        _log.warning(
+                            "DatasetDetailOutput.from_api_payload: skipping invalid resource: %s",
+                            e,
+                        )
                         continue
+                else:
+                    _log.warning(
+                        "DatasetDetailOutput.from_api_payload: skipping non-dict resource type=%s",
+                        type(r).__name__,
+                    )
         payload["resources"] = resources
-        return cls.model_validate(payload)
+        try:
+            return cls.model_validate(payload)
+        except ValidationError as e:
+            _log.error(
+                "DatasetDetailOutput.from_api_payload: payload failed validation: %s keys=%s",
+                e,
+                list(payload.keys()),
+            )
+            raise

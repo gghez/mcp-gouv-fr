@@ -70,9 +70,11 @@ def build_subserver() -> FastMCP:
             boost_population: When true, rank name search by population (upstream ``boost`` param).
             limit: Maximum number of results (keep small, e.g. ≤ 50).
         """
-        if not (nom or "").strip() and not (code_postal or "").strip() and not (
-            code_departement or ""
-        ).strip():
+        if (
+            not (nom or "").strip()
+            and not (code_postal or "").strip()
+            and not (code_departement or "").strip()
+        ):
             raise ValueError(
                 "Provide at least one of nom, code_postal, or code_departement for commune search."
             )
