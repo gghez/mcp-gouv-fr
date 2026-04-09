@@ -1,7 +1,20 @@
-# See https://pre-commit.com and https://github.com/astral-sh/ruff-pre-commit
+# See https://pre-commit.com
+# Uses Ruff from the project environment (`uv run` → same as `uv sync` / dev deps).
 repos:
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.9
+  - repo: local
     hooks:
+      # Format first, then lint (Ruff recommendation).
+      - id: ruff-format
+        name: ruff format (uv)
+        entry: uv run ruff format
+        language: system
+        types_or: [python, pyi]
+        require_serial: true
+        args: [--force-exclude]
       - id: ruff-check
-        args: [--fix]
+        name: ruff check (uv)
+        entry: uv run ruff check
+        language: system
+        types_or: [python, pyi]
+        require_serial: true
+        args: [--fix, --force-exclude]

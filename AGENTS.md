@@ -13,7 +13,7 @@ This file summarizes the **stack**, **architecture choices**, and **conventions*
 | HTTP client | **httpx** **async** (`AsyncClient`) |
 | Tests | **pytest** + **pytest-asyncio** (`asyncio_mode = auto`) |
 | Lint | **ruff** (target `py314` in `pyproject.toml`) |
-| Git hooks | **pre-commit** with **`ruff check`** (`.pre-commit-config.yaml`) |
+| Git hooks | **pre-commit** runs **`uv run ruff format`** then **`uv run ruff check`** (project venv; see `.pre-commit-config.yaml`) |
 
 ## MCP transports
 

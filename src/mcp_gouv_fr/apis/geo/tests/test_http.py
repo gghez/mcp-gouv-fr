@@ -40,9 +40,11 @@ async def test_search_communes_builds_query() -> None:
 async def test_get_commune_by_code() -> None:
     expected = {"nom": "Paris", "code": "75056"}
     transport = httpx.MockTransport(
-        lambda request: httpx.Response(200, json=expected)
-        if request.url.path.rstrip("/").endswith("/communes/75056")
-        else httpx.Response(404)
+        lambda request: (
+            httpx.Response(200, json=expected)
+            if request.url.path.rstrip("/").endswith("/communes/75056")
+            else httpx.Response(404)
+        )
     )
     async with httpx.AsyncClient(transport=transport, base_url=_GEO_BASE) as client:
         result = await geo_http.get_commune(client, "75056")
@@ -62,9 +64,11 @@ async def test_search_departements() -> None:
 async def test_get_departement() -> None:
     expected = {"nom": "Paris", "code": "75", "region": {"code": "11", "nom": "IdF"}}
     transport = httpx.MockTransport(
-        lambda request: httpx.Response(200, json=expected)
-        if request.url.path.rstrip("/").endswith("/departements/75")
-        else httpx.Response(404)
+        lambda request: (
+            httpx.Response(200, json=expected)
+            if request.url.path.rstrip("/").endswith("/departements/75")
+            else httpx.Response(404)
+        )
     )
     async with httpx.AsyncClient(transport=transport, base_url=_GEO_BASE) as client:
         result = await geo_http.get_departement(client, "75")
@@ -84,9 +88,11 @@ async def test_search_regions() -> None:
 async def test_get_region() -> None:
     expected = {"nom": "Île-de-France", "code": "11"}
     transport = httpx.MockTransport(
-        lambda request: httpx.Response(200, json=expected)
-        if request.url.path.rstrip("/").endswith("/regions/11")
-        else httpx.Response(404)
+        lambda request: (
+            httpx.Response(200, json=expected)
+            if request.url.path.rstrip("/").endswith("/regions/11")
+            else httpx.Response(404)
+        )
     )
     async with httpx.AsyncClient(transport=transport, base_url=_GEO_BASE) as client:
         result = await geo_http.get_region(client, "11")
