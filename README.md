@@ -58,6 +58,7 @@ Default transport is **stdio** for local MCP clients; **streamable HTTP** is opt
 
 - **[uv](https://docs.astral.sh/uv/)** installed and available on your `PATH` (so `uvx` works).
 - This project targets **Python 3.14** (`requires-python` in `pyproject.toml`). uv will provision a compatible interpreter when installing from Git or from a local checkout.
+- If you use **`uvx` with a `git+https://...` URL** (recommended install-from-GitHub flow below), **[Git](https://git-scm.com/)** must be installed and **`git` must be on the `PATH` of the MCP subprocess**. uv clones or updates the repo using Git; if Git is missing you get: `Git executable not found`. On Windows, **Claude Desktop** sometimes spawns MCP servers with a shorter `PATH` than your terminal: either use the [clone + `uv run`](#alternative-clone-the-repo-and-run-with-uv) setup, or extend `PATH` in the server `env` block (see below).
 
 ## Recommended setup: MCP config with `uvx` (GitHub)
 
@@ -91,6 +92,12 @@ Typical path on Windows: `%APPDATA%\Claude\claude_desktop_config.json`.
 ```
 
 Restart Claude Desktop after editing. If `uvx` is not found, use the full path to the `uv` executable and run `uv tool run` instead of `uvx`, or add uv to your user `PATH`.
+
+**If uv fails with “Git executable not found”** (common on Windows), the MCP host did not expose `git` on `PATH`. Fixes:
+
+1. **System-wide (simplest):** add `C:\Program Files\Git\cmd` (or your Git install) to the **user or system** `PATH` in Windows Settings so GUI apps (Claude Desktop) inherit it, then restart Claude.
+2. **Per server:** set `env.PATH` in the MCP JSON to a **single string** that lists every folder the process needs, in order — at minimum **Git’s `cmd`** and the folder containing **`uv.exe` / `uvx.exe`** (e.g. `C:\Users\YOU\.local\bin`). Some clients **replace** the process `PATH` entirely when `env` is set, so do not rely on `${PATH}` expansion unless you verified your client merges variables.
+3. **Avoid Git at MCP startup:** use [clone + `uv run`](#alternative-clone-the-repo-and-run-with-uv) (`uv run --directory … mcp-gouv-fr`) after `uv sync` in that clone; uv then runs the project without cloning from Git on each start.
 
 ### Cursor and other editors
 
