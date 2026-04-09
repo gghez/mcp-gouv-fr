@@ -135,12 +135,13 @@ uvx --from git+https://github.com/gghez/mcp-gouv-fr.git mcp-gouv-fr --transport 
 uvx --from git+https://github.com/gghez/mcp-gouv-fr.git mcp-gouv-fr --transport streamable-http --host 127.0.0.1 --port 8765 --path /mcp
 ```
 
-Environment variables (optional): `MCP_GOUV_TRANSPORT`, `MCP_GOUV_HOST`, `MCP_GOUV_PORT`, `MCP_GOUV_HTTP_PATH`.
+Environment variables (optional): `MCP_GOUV_TRANSPORT`, `MCP_GOUV_HOST`, `MCP_GOUV_PORT`, `MCP_GOUV_HTTP_PATH`, `MCP_GOUV_APIS` (comma-separated API ids; default: all).
 
 ## Environment variables (API behavior)
 
 | Variable | Description |
 | -------- | ----------- |
+| `MCP_GOUV_APIS` | Comma-separated API ids to load (`datagouv`, `geo`, `insee`, `radiofrance`); default is all |
 | `MCP_GOUV_DATAGOUV_API_BASE` | data.gouv API base URL (default: `https://www.data.gouv.fr/api/1`) |
 | `MCP_GOUV_GEO_API_BASE` | Geo API base URL (default: `https://geo.api.gouv.fr`) |
 | `MCP_GOUV_INSEE_API_KEY` | INSEE portal consumer key for Sirene (**required** for `insee_*` tools; from [portail-api.insee.fr](https://portail-api.insee.fr/)) |

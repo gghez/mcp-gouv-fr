@@ -6,13 +6,25 @@ import argparse
 import os
 import sys
 
+from mcp_gouv_fr.apis import registered_api_ids, resolve_api_mounts, warn_if_missing_api_keys
 from mcp_gouv_fr.server import build_server
+
+
+def _parse_apis_arg(raw: str | None) -> list[str] | None:
+    """Split a comma-separated API list; ``None``/blank means load all APIs."""
+    if raw is None:
+        return None
+    stripped = raw.strip()
+    if not stripped:
+        return None
+    parts = [p.strip() for p in stripped.split(",") if p.strip()]
+    return parts or None
 
 
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
         prog="mcp-gouv-fr",
-        description="MCP server for French public open data (data.gouv.fr).",
+        description="MCP server for French public open data (data.gouv.fr, geo, INSEE Sirene, …).",
     )
     parser.add_argument(
         "--transport",
@@ -37,9 +49,29 @@ def main(argv: list[str] | None = None) -> None:
         default=os.environ.get("MCP_GOUV_HTTP_PATH", "/mcp"),
         help="HTTP path for the MCP endpoint (streamable-http only).",
     )
+    known = ", ".join(registered_api_ids())
+    parser.add_argument(
+        "--apis",
+        default=os.environ.get("MCP_GOUV_APIS"),
+        metavar="LIST",
+        help=(
+            "Comma-separated API ids to load (default: all). "
+            f"Known: {known}. "
+            "Also settable via MCP_GOUV_APIS."
+        ),
+    )
     args = parser.parse_args(argv)
 
-    mcp = build_server()
+    try:
+        mounts = resolve_api_mounts(_parse_apis_arg(args.apis))
+    except ValueError as e:
+        print(f"{parser.prog}: error: {e}", file=sys.stderr)
+        raise SystemExit(2) from e
+
+    loaded_ids = [ns for ns, _ in mounts]
+    warn_if_missing_api_keys(loaded_ids)
+
+    mcp = build_server(api_mounts=mounts)
 
     if args.transport == "stdio":
         mcp.run(transport="stdio")
