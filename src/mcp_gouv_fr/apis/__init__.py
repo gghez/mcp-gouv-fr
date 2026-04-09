@@ -48,7 +48,9 @@ def registered_api_ids() -> tuple[str, ...]:
 
 def default_api_mounts() -> Sequence[ApiMount]:
     """Ordered list of (namespace, subserver_factory) for the composite MCP server (all APIs)."""
-    return tuple((ns, fac) for ns, fac, _ in _api_registry())
+    result = tuple((ns, fac) for ns, fac, _ in _api_registry())
+    _logger.info("default_api_mounts: %s", [ns for ns, _ in result])
+    return result
 
 
 def resolve_api_mounts(api_ids: Sequence[str] | None) -> list[ApiMount]:
@@ -62,7 +64,9 @@ def resolve_api_mounts(api_ids: Sequence[str] | None) -> list[ApiMount]:
     by_id: dict[str, _RegistryEntry] = {r[0]: r for r in registry}
 
     if not api_ids:
-        return [(ns, fac) for ns, fac, _ in registry]
+        all_mounts = [(ns, fac) for ns, fac, _ in registry]
+        _logger.info("resolve_api_mounts: loading all APIs %s", [ns for ns, _ in all_mounts])
+        return all_mounts
 
     mounts: list[ApiMount] = []
     for raw in api_ids:
@@ -75,7 +79,13 @@ def resolve_api_mounts(api_ids: Sequence[str] | None) -> list[ApiMount]:
             raise ValueError(f"unknown API {api_id!r}; known: {known}")
         mounts.append((entry[0], entry[1]))
     if not mounts:
-        return [(ns, fac) for ns, fac, _ in registry]
+        all_mounts = [(ns, fac) for ns, fac, _ in registry]
+        _logger.warning(
+            "resolve_api_mounts: no valid API ids after parsing; falling back to all %s",
+            [ns for ns, _ in all_mounts],
+        )
+        return all_mounts
+    _logger.info("resolve_api_mounts: selected APIs %s", [ns for ns, _ in mounts])
     return mounts
 
 

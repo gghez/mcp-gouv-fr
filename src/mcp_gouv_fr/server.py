@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Sequence
 
 from fastmcp import FastMCP
 
 from mcp_gouv_fr.apis import ApiMount, default_api_mounts
+
+_log = logging.getLogger(__name__)
 
 
 def build_server(*, api_mounts: Sequence[ApiMount] | None = None) -> FastMCP:
@@ -19,6 +22,7 @@ def build_server(*, api_mounts: Sequence[ApiMount] | None = None) -> FastMCP:
     Args:
         api_mounts: Override for tests; defaults to :func:`default_api_mounts`.
     """
+    _log.info("build_server: api_mounts=%s", "default" if api_mounts is None else "custom")
     if api_mounts is None:
         mounts = list(default_api_mounts())
     else:
@@ -43,6 +47,13 @@ def build_server(*, api_mounts: Sequence[ApiMount] | None = None) -> FastMCP:
     )
 
     for namespace, factory in mounts:
-        mcp.mount(factory(), namespace=namespace)
+        _log.info("Mounting sub-server namespace=%r", namespace)
+        try:
+            sub = factory()
+        except Exception:
+            _log.exception("Failed to build sub-server for namespace=%r", namespace)
+            raise
+        mcp.mount(sub, namespace=namespace)
 
+    _log.info("build_server: done, %d namespace(s) mounted", len(mounts))
     return mcp

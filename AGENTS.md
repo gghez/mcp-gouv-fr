@@ -13,6 +13,7 @@ This file summarizes the **stack**, **architecture choices**, and **conventions*
 | HTTP client | **httpx** **async** (`AsyncClient`) |
 | Tests | **pytest** + **pytest-asyncio** (`asyncio_mode = auto`) |
 | Lint | **ruff** (target `py314` in `pyproject.toml`) |
+| Git hooks | **pre-commit** with **`ruff check`** (`.pre-commit-config.yaml`) |
 
 ## MCP transports
 
@@ -86,3 +87,4 @@ Register new APIs in `default_api_mounts()` **in dependency order** if one day a
 - MCP **resources** for canonical dataset URLs.
 - More tools (organizations, reuses, other public APIs) after checking terms of use.
 - Hardened **HTTP** profile: narrow CORS, middleware, authentication.
+
