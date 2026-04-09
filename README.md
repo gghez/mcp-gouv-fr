@@ -1,31 +1,58 @@
 # mcp-gouv-fr
 
-[MCP](https://modelcontextprotocol.io/) (Model Context Protocol) server built with [FastMCP](https://gofastmcp.com/) so assistants (Claude Desktop, Cursor, etc.) can query **French public open data** through documented, structured tools. Integrated APIs include **[data.gouv.fr](https://www.data.gouv.fr/)** (API v1), the national geographic referential **[geo.api.gouv.fr](https://geo.api.gouv.fr/)**, **[INSEE API Sirene](https://portail-api.insee.fr/)** for business registry lookups (portal API key required), and the **[Radio France Open API](https://developers.radiofrance.fr/)** (GraphQL, token required).
+[MCP](https://modelcontextprotocol.io/) server built with [FastMCP](https://gofastmcp.com/) for **Claude Desktop**, **Cursor**, and other clients. Use it to explore **French public open data** through ready-made tools instead of calling each portal yourself.
 
 **Source repository:** [github.com/gghez/mcp-gouv-fr](https://github.com/gghez/mcp-gouv-fr)
 
-## What it provides (technical / functional)
+## APIs
 
-- **Transport:** stdio (default, for local MCP clients) or streamable HTTP (optional, for remote access where your client supports it).
-- **Architecture:** one FastMCP sub-server per API family, **mounted with a namespace**. Tool names are prefixed (e.g. `datagouv_search_datasets`, `geo_search_communes`, `insee_get_unite_legale`, `radiofrance_graphql`).
-- **Outputs:** [Pydantic](https://docs.pydantic.dev/) models with field descriptions, exposed to clients as JSON Schema so agents can interpret results without guessing.
-- **HTTP:** stateless calls to public APIs with configurable timeout and `User-Agent`.
+| API | What you can do |
+| --- | ---------------- |
+| [data.gouv.fr](https://www.data.gouv.fr/) | Search and open datasets: metadata, organization, and links to files or APIs. |
+| [geo.api.gouv.fr](https://geo.api.gouv.fr/) | Look up communes, departments, and regions (names, codes, and related geography). |
+| [INSEE API Sirene](https://portail-api.insee.fr/) | Look up a legal entity (**SIREN**) or an establishment (**SIRET**); needs an INSEE API key. |
+| [Radio France Open API](https://developers.radiofrance.fr/) | Run GraphQL queries on Radio France open data; needs an API token. |
 
-### Tools (current)
+### data.gouv.fr
 
-| MCP tool | Role |
-| -------- | ---- |
-| `datagouv_search_datasets` | Full-text search over datasets (title, description, organization), with pagination (`page`, `page_size`). |
-| `datagouv_get_dataset` | Full metadata and **resource links** (files, APIs, formats, MIME) for one dataset, by id or slug. |
-| `radiofrance_graphql` | Execute a GraphQL query against Radio France public data. Requires a Radio France Open API token (`x-token`). |
-| `geo_search_communes` | Search communes by name, postal code, and/or department (at least one filter required). |
-| `geo_get_commune` | Commune detail by INSEE municipality code. |
-| `geo_search_departements` / `geo_get_departement` | List or search departments; detail by department code. |
-| `geo_search_regions` / `geo_get_region` | List or search regions; detail by region code. |
-| `insee_get_unite_legale` | Legal unit (unité légale) by 9-digit **SIREN**; requires `MCP_GOUV_INSEE_API_KEY`. |
-| `insee_get_etablissement` | Establishment (établissement) by 14-digit **SIRET**; requires `MCP_GOUV_INSEE_API_KEY`. |
+Tools use the `datagouv_` prefix.
 
-Additional portals may be added later as new namespaces under `mcp_gouv_fr.apis`.
+| Tool | What it does |
+| --- | --- |
+| `datagouv_search_datasets` | Search datasets by title, description, or organization, with pagination. |
+| `datagouv_get_dataset` | Full metadata and resource links for one dataset (id or slug). |
+
+### geo.api.gouv.fr
+
+Tools use the `geo_` prefix.
+
+| Tool | What it does |
+| --- | --- |
+| `geo_search_communes` | Search communes by name, postal code, and/or department (at least one filter). |
+| `geo_get_commune` | Commune details by INSEE municipality code. |
+| `geo_search_departements` | List or search departments. |
+| `geo_get_departement` | Department detail by code. |
+| `geo_search_regions` | List or search regions. |
+| `geo_get_region` | Region detail by code. |
+
+### INSEE API Sirene
+
+Tools use the `insee_` prefix. Set **`MCP_GOUV_INSEE_API_KEY`** or these tools will report a configuration error.
+
+| Tool | What it does |
+| --- | --- |
+| `insee_get_unite_legale` | Legal unit (unité légale) by 9-digit **SIREN**. |
+| `insee_get_etablissement` | Establishment (établissement) by 14-digit **SIRET**. |
+
+### Radio France Open API
+
+Tools use the `radiofrance_` prefix. Set **`MCP_GOUV_RADIOFRANCE_API_TOKEN`** for `radiofrance_graphql`.
+
+| Tool | What it does |
+| --- | --- |
+| `radiofrance_graphql` | Execute a GraphQL query against Radio France public data. |
+
+Default transport is **stdio** for local MCP clients; **streamable HTTP** is optional for remote access (see [Transports and CLI options](#transports-and-cli-options)).
 
 ## Prerequisites
 
@@ -162,7 +189,7 @@ When using Claude Desktop or Cursor, add `MCP_GOUV_INSEE_API_KEY` to the server�
 
 ## Development
 
-Contributors: tests and lint live in the repo. Run `uv run pytest` and `uv run ruff check src`. Install Git hooks with `uv run pre-commit install` (runs `ruff check --fix` on commit). See `AGENTS.md` for layout conventions (nested `tests` next to the code they cover).
+Contributors: tests and lint live in the repo. Run `uv run pytest` and `uv run ruff check src`. Install Git hooks with `uv run pre-commit install` (runs `ruff check --fix` on commit). Tool outputs use [Pydantic](https://docs.pydantic.dev/) models (JSON Schema for MCP clients). See [AGENTS.md](AGENTS.md) for layout conventions (nested `tests` next to the code they cover).
 
 ## License
 
