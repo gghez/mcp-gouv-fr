@@ -1,7 +1,7 @@
 [project]
 name = "mcp-gouv-fr"
 version = "0.1.0"
-description = "FastMCP server for French public open data APIs (data.gouv.fr and future portals)."
+description = "FastMCP server for French public open data APIs (data.gouv.fr, geo.api.gouv.fr, …)."
 authors = [
     { name = "Grégory Ghez", email = "6266247+gghez@users.noreply.github.com" }
 ]
