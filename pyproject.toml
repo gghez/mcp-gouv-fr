@@ -1,0 +1,39 @@
+[project]
+name = "mcp-gouv-fr"
+version = "0.1.0"
+description = "FastMCP server for French public open data APIs (data.gouv.fr and future portals)."
+authors = [
+    { name = "Grégory Ghez", email = "6266247+gghez@users.noreply.github.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "fastmcp>=3.2.2",
+    "httpx>=0.28.1",
+    "pydantic>=2.12,<3",
+]
+
+[project.scripts]
+mcp-gouv-fr = "mcp_gouv_fr.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.11.6,<0.12.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+    "pytest-asyncio>=1.3.0",
+    "ruff>=0.15.10",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["src/mcp_gouv_fr"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
