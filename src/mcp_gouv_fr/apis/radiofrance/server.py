@@ -26,11 +26,14 @@ async def _lifespan(_server: FastMCP) -> AsyncIterator[dict[str, Any]]:
     }
     if RADIOFRANCE_API_TOKEN:
         headers["x-token"] = RADIOFRANCE_API_TOKEN
-    async with httpx.AsyncClient(
-        timeout=HTTP_TIMEOUT_S,
-        headers=headers,
-    ) as client:
-        yield {"http_client": client, "graphql_url": RADIOFRANCE_GRAPHQL_URL.rstrip("/")}
+    try:
+        async with httpx.AsyncClient(
+            timeout=HTTP_TIMEOUT_S,
+            headers=headers,
+        ) as client:
+            yield {"http_client": client, "graphql_url": RADIOFRANCE_GRAPHQL_URL.rstrip("/")}
+    except Exception:
+        raise
 
 
 def build_subserver() -> FastMCP:

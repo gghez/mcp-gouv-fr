@@ -26,12 +26,15 @@ from mcp_gouv_fr.http_lifespan import get_lifespan_http_client
 
 @asynccontextmanager
 async def _lifespan(_server: FastMCP) -> AsyncIterator[dict[str, Any]]:
-    async with httpx.AsyncClient(
-        base_url=GEO_API_BASE.rstrip("/") + "/",
-        timeout=HTTP_TIMEOUT_S,
-        headers={"User-Agent": HTTP_USER_AGENT, "Accept": "application/json"},
-    ) as client:
-        yield {"http_client": client}
+    try:
+        async with httpx.AsyncClient(
+            base_url=GEO_API_BASE.rstrip("/") + "/",
+            timeout=HTTP_TIMEOUT_S,
+            headers={"User-Agent": HTTP_USER_AGENT, "Accept": "application/json"},
+        ) as client:
+            yield {"http_client": client}
+    except Exception:
+        raise
 
 
 def build_subserver() -> FastMCP:
