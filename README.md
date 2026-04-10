@@ -85,7 +85,10 @@ Typical path on Windows: `%APPDATA%\Claude\claude_desktop_config.json`.
         "--from",
         "git+https://github.com/gghez/mcp-gouv-fr.git",
         "mcp-gouv-fr"
-      ]
+      ],
+      "env": {
+        "PATHEXT": ".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.PY;.PYW"
+      }
     }
   }
 }
