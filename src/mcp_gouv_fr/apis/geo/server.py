@@ -21,20 +21,18 @@ from mcp_gouv_fr.apis.geo.models import (
     RegionSummary,
 )
 from mcp_gouv_fr.config import HTTP_TIMEOUT_S, HTTP_USER_AGENT
-from mcp_gouv_fr.http_lifespan import get_lifespan_http_client
+from mcp_gouv_fr.http_lifespan import get_http_client
 
 
 @asynccontextmanager
-async def _lifespan(_server: FastMCP) -> AsyncIterator[dict[str, Any]]:
-    try:
-        async with httpx.AsyncClient(
-            base_url=GEO_API_BASE.rstrip("/") + "/",
-            timeout=HTTP_TIMEOUT_S,
-            headers={"User-Agent": HTTP_USER_AGENT, "Accept": "application/json"},
-        ) as client:
-            yield {"http_client": client}
-    except Exception:
-        raise
+async def _lifespan(server: FastMCP) -> AsyncIterator[dict[str, Any]]:
+    async with httpx.AsyncClient(
+        base_url=GEO_API_BASE.rstrip("/") + "/",
+        timeout=HTTP_TIMEOUT_S,
+        headers={"User-Agent": HTTP_USER_AGENT, "Accept": "application/json"},
+    ) as client:
+        server._http_client = client  # type: ignore[attr-defined]
+        yield {}
 
 
 def build_subserver() -> FastMCP:
@@ -82,7 +80,7 @@ def build_subserver() -> FastMCP:
             raise ValueError(
                 "Provide at least one of nom, code_postal, or code_departement for commune search."
             )
-        client = get_lifespan_http_client(ctx)
+        client = get_http_client(ctx)
         raw = await geo_http.search_communes(
             client,
             nom=nom,
@@ -99,9 +97,9 @@ def build_subserver() -> FastMCP:
 
         Args:
             code: INSEE ``code commune`` (5 characters for mainland; includes Corsica ``2A``/``2B``
-                departments’ communes with standard 5-digit codes).
+                departments' communes with standard 5-digit codes).
         """
-        client = get_lifespan_http_client(ctx)
+        client = get_http_client(ctx)
         raw = await geo_http.get_commune(client, code)
         return CommuneSummary.model_validate(raw)
 
@@ -118,7 +116,7 @@ def build_subserver() -> FastMCP:
                 (subject to ``limit``).
             limit: Cap on returned rows (default covers all mainland + overseas departments).
         """
-        client = get_lifespan_http_client(ctx)
+        client = get_http_client(ctx)
         raw = await geo_http.search_departements(client, nom=nom, limit=limit)
         return DepartementSearchOutput.from_api_list(raw)
 
@@ -129,7 +127,7 @@ def build_subserver() -> FastMCP:
         Args:
             code: Official department code (e.g. ``13``, ``75``, ``2A``).
         """
-        client = get_lifespan_http_client(ctx)
+        client = get_http_client(ctx)
         raw = await geo_http.get_departement(client, code)
         return DepartementSummary.model_validate(raw)
 
@@ -145,7 +143,7 @@ def build_subserver() -> FastMCP:
             nom: When set, filters regions by name; when omitted, returns every region.
             limit: Cap on returned rows (France has fewer than 20 regions).
         """
-        client = get_lifespan_http_client(ctx)
+        client = get_http_client(ctx)
         raw = await geo_http.search_regions(client, nom=nom, limit=limit)
         return RegionSearchOutput.from_api_list(raw)
 
@@ -156,7 +154,7 @@ def build_subserver() -> FastMCP:
         Args:
             code: Official region code (e.g. ``11`` for Île-de-France).
         """
-        client = get_lifespan_http_client(ctx)
+        client = get_http_client(ctx)
         raw = await geo_http.get_region(client, code)
         return RegionSummary.model_validate(raw)
 

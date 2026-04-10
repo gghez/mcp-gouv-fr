@@ -15,13 +15,13 @@ from mcp_gouv_fr.apis.datagouv import http as dg_http
 from mcp_gouv_fr.apis.datagouv.config import DATAGOUV_API_BASE
 from mcp_gouv_fr.apis.datagouv.models import DatasetDetailOutput, DatasetSearchOutput
 from mcp_gouv_fr.config import HTTP_TIMEOUT_S, HTTP_USER_AGENT
-from mcp_gouv_fr.http_lifespan import get_lifespan_http_client
+from mcp_gouv_fr.http_lifespan import get_http_client
 
 _log = logging.getLogger(__name__)
 
 
 @asynccontextmanager
-async def _lifespan(_server: FastMCP) -> AsyncIterator[dict[str, Any]]:
+async def _lifespan(server: FastMCP) -> AsyncIterator[dict[str, Any]]:
     base = DATAGOUV_API_BASE.rstrip("/") + "/"
     _log.info("datagouv lifespan: opening HTTP client base_url=%s timeout=%s", base, HTTP_TIMEOUT_S)
     try:
@@ -30,8 +30,9 @@ async def _lifespan(_server: FastMCP) -> AsyncIterator[dict[str, Any]]:
             timeout=HTTP_TIMEOUT_S,
             headers={"User-Agent": HTTP_USER_AGENT, "Accept": "application/json"},
         ) as client:
+            server._http_client = client  # type: ignore[attr-defined]
             _log.info("datagouv lifespan: client ready")
-            yield {"http_client": client}
+            yield {}
     except Exception:
         _log.exception("datagouv lifespan: error while managing HTTP client")
         raise
@@ -86,7 +87,7 @@ def build_subserver() -> FastMCP:
                 "search_datasets: page_size=%s is large; the API may cap or respond slowly",
                 page_size,
             )
-        client = get_lifespan_http_client(ctx)
+        client = get_http_client(ctx)
         try:
             raw = await dg_http.search_datasets(client, query=query, page=page, page_size=page_size)
             out = DatasetSearchOutput.from_api_payload(raw)
@@ -110,7 +111,7 @@ def build_subserver() -> FastMCP:
         _log.info("tool get_dataset called dataset_id=%r", dataset_id)
         if not dataset_id.strip():
             _log.warning("get_dataset: empty or whitespace-only dataset_id")
-        client = get_lifespan_http_client(ctx)
+        client = get_http_client(ctx)
         try:
             raw = await dg_http.get_dataset(client, dataset_id)
             out = DatasetDetailOutput.from_api_payload(raw)
