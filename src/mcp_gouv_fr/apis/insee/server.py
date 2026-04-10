@@ -14,6 +14,7 @@ from mcp_gouv_fr.apis.insee import http as insee_http
 from mcp_gouv_fr.apis.insee.config import INSEE_API_KEY, INSEE_SIRENE_API_BASE
 from mcp_gouv_fr.apis.insee.models import EtablissementOutput, UniteLegaleOutput
 from mcp_gouv_fr.config import HTTP_TIMEOUT_S, HTTP_USER_AGENT
+from mcp_gouv_fr.http_lifespan import get_lifespan_http_client
 
 
 def _require_api_key() -> None:
@@ -70,7 +71,7 @@ def build_subserver() -> FastMCP:
             siren: Nine-digit SIREN (spaces optional).
         """
         _require_api_key()
-        client: httpx.AsyncClient = ctx.lifespan_context["http_client"]
+        client = get_lifespan_http_client(ctx)
         raw = await insee_http.get_unite_legale(client, siren)
         return UniteLegaleOutput.from_api_payload(raw)
 
@@ -85,7 +86,7 @@ def build_subserver() -> FastMCP:
             siret: Fourteen-digit SIRET (spaces optional).
         """
         _require_api_key()
-        client: httpx.AsyncClient = ctx.lifespan_context["http_client"]
+        client = get_lifespan_http_client(ctx)
         raw = await insee_http.get_etablissement(client, siret)
         return EtablissementOutput.from_api_payload(raw)
 

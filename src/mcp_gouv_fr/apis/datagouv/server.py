@@ -15,6 +15,7 @@ from mcp_gouv_fr.apis.datagouv import http as dg_http
 from mcp_gouv_fr.apis.datagouv.config import DATAGOUV_API_BASE
 from mcp_gouv_fr.apis.datagouv.models import DatasetDetailOutput, DatasetSearchOutput
 from mcp_gouv_fr.config import HTTP_TIMEOUT_S, HTTP_USER_AGENT
+from mcp_gouv_fr.http_lifespan import get_lifespan_http_client
 
 _log = logging.getLogger(__name__)
 
@@ -85,7 +86,7 @@ def build_subserver() -> FastMCP:
                 "search_datasets: page_size=%s is large; the API may cap or respond slowly",
                 page_size,
             )
-        client: httpx.AsyncClient = ctx.lifespan_context["http_client"]
+        client = get_lifespan_http_client(ctx)
         try:
             raw = await dg_http.search_datasets(client, query=query, page=page, page_size=page_size)
             out = DatasetSearchOutput.from_api_payload(raw)
@@ -109,7 +110,7 @@ def build_subserver() -> FastMCP:
         _log.info("tool get_dataset called dataset_id=%r", dataset_id)
         if not dataset_id.strip():
             _log.warning("get_dataset: empty or whitespace-only dataset_id")
-        client: httpx.AsyncClient = ctx.lifespan_context["http_client"]
+        client = get_lifespan_http_client(ctx)
         try:
             raw = await dg_http.get_dataset(client, dataset_id)
             out = DatasetDetailOutput.from_api_payload(raw)
