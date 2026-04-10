@@ -14,6 +14,7 @@ from mcp_gouv_fr.apis.radiofrance import http as rf_http
 from mcp_gouv_fr.apis.radiofrance.config import RADIOFRANCE_API_TOKEN, RADIOFRANCE_GRAPHQL_URL
 from mcp_gouv_fr.apis.radiofrance.models import GraphQLExecuteOutput
 from mcp_gouv_fr.config import HTTP_TIMEOUT_S, HTTP_USER_AGENT
+from mcp_gouv_fr.http_lifespan import get_lifespan_http_client
 
 
 @asynccontextmanager
@@ -72,8 +73,13 @@ def build_subserver() -> FastMCP:
                 "https://developers.radiofrance.fr/ and set the variable in your environment."
             )
             raise RuntimeError(msg)
-        client: httpx.AsyncClient = ctx.lifespan_context["http_client"]
-        graphql_url: str = ctx.lifespan_context["graphql_url"]
+        client = get_lifespan_http_client(ctx)
+        graphql_url = ctx.lifespan_context.get("graphql_url")
+        if not isinstance(graphql_url, str) or not graphql_url:
+            raise RuntimeError(
+                "MCP lifespan did not provide 'graphql_url'. "
+                "See apis/radiofrance/server.py lifespan yield."
+            )
         raw = await rf_http.execute_graphql(
             client,
             graphql_url,
