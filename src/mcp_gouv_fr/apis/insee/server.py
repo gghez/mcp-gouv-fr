@@ -14,7 +14,7 @@ from mcp_gouv_fr.apis.insee import http as insee_http
 from mcp_gouv_fr.apis.insee.config import INSEE_API_KEY, INSEE_SIRENE_API_BASE
 from mcp_gouv_fr.apis.insee.models import EtablissementOutput, UniteLegaleOutput
 from mcp_gouv_fr.config import HTTP_TIMEOUT_S, HTTP_USER_AGENT
-from mcp_gouv_fr.http_lifespan import get_lifespan_http_client
+from mcp_gouv_fr.http_lifespan import get_http_client
 
 
 def _require_api_key() -> None:
@@ -26,7 +26,7 @@ def _require_api_key() -> None:
 
 
 @asynccontextmanager
-async def _lifespan(_server: FastMCP) -> AsyncIterator[dict[str, Any]]:
+async def _lifespan(server: FastMCP) -> AsyncIterator[dict[str, Any]]:
     base = INSEE_SIRENE_API_BASE.rstrip("/") + "/"
     headers: dict[str, str] = {
         "User-Agent": HTTP_USER_AGENT,
@@ -35,15 +35,13 @@ async def _lifespan(_server: FastMCP) -> AsyncIterator[dict[str, Any]]:
     if INSEE_API_KEY:
         headers["X-INSEE-Api-Key-Integration"] = INSEE_API_KEY
 
-    try:
-        async with httpx.AsyncClient(
-            base_url=base,
-            timeout=HTTP_TIMEOUT_S,
-            headers=headers,
-        ) as client:
-            yield {"http_client": client}
-    except Exception:
-        raise
+    async with httpx.AsyncClient(
+        base_url=base,
+        timeout=HTTP_TIMEOUT_S,
+        headers=headers,
+    ) as client:
+        server._http_client = client  # type: ignore[attr-defined]
+        yield {}
 
 
 def build_subserver() -> FastMCP:
@@ -74,7 +72,7 @@ def build_subserver() -> FastMCP:
             siren: Nine-digit SIREN (spaces optional).
         """
         _require_api_key()
-        client = get_lifespan_http_client(ctx)
+        client = get_http_client(ctx)
         raw = await insee_http.get_unite_legale(client, siren)
         return UniteLegaleOutput.from_api_payload(raw)
 
@@ -89,7 +87,7 @@ def build_subserver() -> FastMCP:
             siret: Fourteen-digit SIRET (spaces optional).
         """
         _require_api_key()
-        client = get_lifespan_http_client(ctx)
+        client = get_http_client(ctx)
         raw = await insee_http.get_etablissement(client, siret)
         return EtablissementOutput.from_api_payload(raw)
 

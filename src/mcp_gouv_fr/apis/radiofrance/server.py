@@ -14,11 +14,11 @@ from mcp_gouv_fr.apis.radiofrance import http as rf_http
 from mcp_gouv_fr.apis.radiofrance.config import RADIOFRANCE_API_TOKEN, RADIOFRANCE_GRAPHQL_URL
 from mcp_gouv_fr.apis.radiofrance.models import GraphQLExecuteOutput
 from mcp_gouv_fr.config import HTTP_TIMEOUT_S, HTTP_USER_AGENT
-from mcp_gouv_fr.http_lifespan import effective_lifespan_context, get_lifespan_http_client
+from mcp_gouv_fr.http_lifespan import get_http_client
 
 
 @asynccontextmanager
-async def _lifespan(_server: FastMCP) -> AsyncIterator[dict[str, Any]]:
+async def _lifespan(server: FastMCP) -> AsyncIterator[dict[str, Any]]:
     headers: dict[str, str] = {
         "User-Agent": HTTP_USER_AGENT,
         "Accept": "application/json",
@@ -26,14 +26,13 @@ async def _lifespan(_server: FastMCP) -> AsyncIterator[dict[str, Any]]:
     }
     if RADIOFRANCE_API_TOKEN:
         headers["x-token"] = RADIOFRANCE_API_TOKEN
-    try:
-        async with httpx.AsyncClient(
-            timeout=HTTP_TIMEOUT_S,
-            headers=headers,
-        ) as client:
-            yield {"http_client": client, "graphql_url": RADIOFRANCE_GRAPHQL_URL.rstrip("/")}
-    except Exception:
-        raise
+    async with httpx.AsyncClient(
+        timeout=HTTP_TIMEOUT_S,
+        headers=headers,
+    ) as client:
+        server._http_client = client  # type: ignore[attr-defined]
+        server._graphql_url = RADIOFRANCE_GRAPHQL_URL.rstrip("/")  # type: ignore[attr-defined]
+        yield {}
 
 
 def build_subserver() -> FastMCP:
@@ -76,12 +75,12 @@ def build_subserver() -> FastMCP:
                 "https://developers.radiofrance.fr/ and set the variable in your environment."
             )
             raise RuntimeError(msg)
-        client = get_lifespan_http_client(ctx)
-        graphql_url = effective_lifespan_context(ctx).get("graphql_url")
+        client = get_http_client(ctx)
+        graphql_url = getattr(ctx.fastmcp, "_graphql_url", None)
         if not isinstance(graphql_url, str) or not graphql_url:
             raise RuntimeError(
                 "MCP lifespan did not provide 'graphql_url'. "
-                "See apis/radiofrance/server.py lifespan yield."
+                "See apis/radiofrance/server.py lifespan."
             )
         raw = await rf_http.execute_graphql(
             client,
