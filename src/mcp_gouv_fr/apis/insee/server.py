@@ -35,12 +35,15 @@ async def _lifespan(_server: FastMCP) -> AsyncIterator[dict[str, Any]]:
     if INSEE_API_KEY:
         headers["X-INSEE-Api-Key-Integration"] = INSEE_API_KEY
 
-    async with httpx.AsyncClient(
-        base_url=base,
-        timeout=HTTP_TIMEOUT_S,
-        headers=headers,
-    ) as client:
-        yield {"http_client": client}
+    try:
+        async with httpx.AsyncClient(
+            base_url=base,
+            timeout=HTTP_TIMEOUT_S,
+            headers=headers,
+        ) as client:
+            yield {"http_client": client}
+    except Exception:
+        raise
 
 
 def build_subserver() -> FastMCP:
